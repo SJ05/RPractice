@@ -33,7 +33,7 @@ best <- function(state, outcome) {
                         which(collectedData[, "State"] == state)
                 
                 ## Extract the data
-                extractedData = collectedData[listOfSelectedData,]
+                extractedData <- collectedData[listOfSelectedData,]
                 
                 ## Get the Values per index and since it is characters, change to numeric
                 numericValues <-
