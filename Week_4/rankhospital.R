@@ -13,15 +13,11 @@ rankhospital <- function(state, outcome, num = "best") {
 	
 	## Put header names
 	colnames(collectedData) <-
-			c("Hospital Name",
-					"State",
-					"heart attack",
-					"heart failure",
+			c("Hospital Name", "State", "heart attack", "heart failure",
 					"pneumonia")
 	
 	## Combine the outcomes in a list
-	outcomeChoice <-
-			c("heart attack", "heart failure", "pneumonia")
+	outcomeChoice <- c("heart attack", "heart failure", "pneumonia")
 	
 	## Check that state is valid
 	if (!state %in% collectedData[, "State"]) {
@@ -31,32 +27,42 @@ rankhospital <- function(state, outcome, num = "best") {
 	else if (!outcome %in% outcomeChoice) {
 		stop("invalid outcome")
 	}
-	## Check if the row number is greater than the length of the selected data
-	else if(num > sum(nrow(readCSV))) {
-		stop("NA")
-	} 
-	else if(is.numeric(rank) ) {
-		## Return hospital name in that state with the given rank
-		## 30-day death rate
-		listOfSelectedData <-
-				which(collectedData[, "State"] == state)
+	
+	## Get the values based from the State
+	listOfSelectedData <- which(collectedData[, "State"] == state)
+	
+	## Extract the data
+	extractedData <- collectedData[listOfSelectedData,]	
+	
+	## Check if the num is numeric
+	if(is.numeric(num)) {
+		## Order it from highest to lowest but make sure the outcome is numeric
+		extractedData <- extractedData[order(as.numeric(extractedData[, eval(outcome)]), extractedData[, "Hospital Name"]), ]
 		
-		## Extract the data
-		extractedData = collectedData[listOfSelectedData,]
+		rankData <- extractedData[, "Hospital Name"][num]
+	}
+	## Check if the num is "best" or "worst"
+	else {
+		if(num == "best") {
+			## Order it using decreasing value but make sure the outcome is numeric
+			extractedData <- extractedData[order(as.numeric(extractedData[, eval(outcome)]), extractedData[, "Hospital Name"]), ]
+			
+			## Get the 1st hospital
+			rankData <- extractedData[, "Hospital Name"][1]
+		} else if (num == "worst") {
+			## Order it using decreasing value but make sure the outcome is numeric
+			extractedData <- extractedData[order(as.numeric(extractedData[, eval(outcome)]), extractedData[, "Hospital Name"], decreasing = TRUE), ]
+			
+			## Get the 1st hospital
+			rankData <- extractedData[, "Hospital Name"][1]
+		} 
+		## Check if the row number is greater than the length of the selected data
+		else if(num > sum(nrow(extractedData))) {
+			stop("NA")
+		} 
 		
-		## Get the Values per index and since it is characters, change to numeric
-		numericValues <-
-				as.numeric(extractedData[, eval(outcome)])
-		
-		## Put them in variable
-		result  <-
-				extractedData[, "Hospital Name"][which(numericValues == minimumValue)]
-		
-		## Arrange into alphabetical order
-		finalData <- result[order(result)]
 	}
 	
-	return(finalData)
-
+	return(rankData)
 }
 
