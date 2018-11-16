@@ -31,7 +31,7 @@ rankhospital <- function(state, outcome, num = "best") {
 	## Get the values based from the State
 	listOfSelectedData <- which(collectedData[, "State"] == state)
 	
-	## Extract the data
+	## Extract the data to be evaluated
 	extractedData <- collectedData[listOfSelectedData,]	
 	
 	## Check if the num is numeric
@@ -41,15 +41,18 @@ rankhospital <- function(state, outcome, num = "best") {
 		
 		rankData <- extractedData[, "Hospital Name"][num]
 	}
-	## Check if the num is "best" or "worst"
+	## Check if the num is not numeric
 	else {
+		## Check if the num is "best"
 		if(num == "best") {
-			## Order it using decreasing value but make sure the outcome is numeric
+			## Order it using increasing value but make sure the outcome is numeric
 			extractedData <- extractedData[order(as.numeric(extractedData[, eval(outcome)]), extractedData[, "Hospital Name"]), ]
 			
 			## Get the 1st hospital
 			rankData <- extractedData[, "Hospital Name"][1]
-		} else if (num == "worst") {
+		}
+		## Check if the num is "worst"
+		else if (num == "worst") {
 			## Order it using decreasing value but make sure the outcome is numeric
 			extractedData <- extractedData[order(as.numeric(extractedData[, eval(outcome)]), extractedData[, "Hospital Name"], decreasing = TRUE), ]
 			
@@ -59,10 +62,10 @@ rankhospital <- function(state, outcome, num = "best") {
 		## Check if the row number is greater than the length of the selected data
 		else if(num > sum(nrow(extractedData))) {
 			stop("NA")
-		} 
-		
+		} 	
 	}
-	
+	## Return hospital name in that state with the given rank
+	## 30-day death rate
 	return(rankData)
 }
 
